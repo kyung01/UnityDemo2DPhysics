@@ -16,8 +16,10 @@ namespace ExtensionsSpriteRenderer
         public static void kNewSprite(this SpriteRenderer s)
         {
             var texture = s.sprite.texture.kCopy();
-            s.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+            s.sprite = Sprite.Create(texture, new Rect(.0f, 0.0f, texture.width, texture.height),
                 new Vector2(.5f, .5f), helperGetSpriteScale(s.sprite));
+            //s.sprite.
+            //Debug.Log("newSprite AFTER " + s.sprite.texture.width + " " + s.sprite.texture.height);
         }
     }
 }
