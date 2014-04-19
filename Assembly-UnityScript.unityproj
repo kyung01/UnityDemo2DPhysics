@@ -5,11 +5,11 @@
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 	<ProductVersion>10.0.20506</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{4BC88C02-0886-8906-90AF-C61520734D58}</ProjectGuid>
+	<ProjectGuid>{09AB0A20-1470-D749-08C1-D6E9B3DBAD8F}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace></RootNamespace>
-	<AssemblyName>Assembly-CSharp</AssemblyName>
+	<AssemblyName>Assembly-UnityScript</AssemblyName>
 	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
 	<BaseDirectory>Assets</BaseDirectory>
@@ -46,18 +46,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\DeformableSprite.cs" />
-     <Compile Include="Assets\DeformableSpriteApplier.cs" />
-     <Compile Include="Assets\EasyGameObject.cs" />
-     <Compile Include="Assets\EasySprite.cs" />
-     <Compile Include="Assets\ExtensionsSprite.cs" />
-     <Compile Include="Assets\ExtensionsSpriteRenderer.cs" />
-     <Compile Include="Assets\ExtensionsTexture2D.cs" />
-     <Compile Include="Assets\ExtensionsTransform.cs" />
-     <Compile Include="Assets\ManuelAlignObjects.cs" />
-     <Compile Include="Assets\SpriteColorModifier.cs" />
-     <Compile Include="Assets\TransformExtension.cs" />
-     <Compile Include="Assets\Vector3ExtentionMethods.cs" />
+     <Compile Include="Assets\NewBehaviourScript.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

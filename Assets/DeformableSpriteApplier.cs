@@ -26,7 +26,7 @@ public class DeformableSpriteApplier : MonoBehaviour {
     void OnTriggerEnter2D(Collider2D c)
     {
         isCollided(c.GetInstanceID(), c.gameObject);
-        Debug.Log("Enter "+this.gameObject.GetInstanceID() + " " +c.gameObject.GetInstanceID());
+        //Debug.Log("Enter "+this.gameObject.GetInstanceID() + " " +c.gameObject.GetInstanceID());
         //transform.position = new Vector3(0, -100, 0);
     }
     void OnTriggerStay2D(Collider2D c)
@@ -35,8 +35,9 @@ public class DeformableSpriteApplier : MonoBehaviour {
         foreach(var v in dics){
             var deformable = v.Value.GetComponent<DeformableSprite>();
             if (deformable == null) continue;
+            //var t = new Thread(new ThreadStart(delegate() { deformable.Apply(gameObject); }));
+            //t.Start();
             deformable.Apply(gameObject);
-            deformable.UpdateMesh();
         }
         Destroy(this.gameObject);
     }
