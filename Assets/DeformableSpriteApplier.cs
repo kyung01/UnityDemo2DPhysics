@@ -3,6 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class DeformableSpriteApplier : MonoBehaviour {
+    public bool isUnique = false;
+
+    bool isDead = false;
+    int idTexture = 0;
     Dictionary<int, GameObject> dics = new Dictionary<int, GameObject>();
 	// Use this for initialization
 	void Start () {
@@ -11,7 +15,7 @@ public class DeformableSpriteApplier : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        
+        if (isDead) GameObject.Destroy(gameObject);
 	
 	}
     public bool isCollided(int id, GameObject obj)
@@ -31,15 +35,21 @@ public class DeformableSpriteApplier : MonoBehaviour {
     }
     void OnTriggerStay2D(Collider2D c)
     {
-        Debug.Log("STAY");
+        if (isDead) return;
         foreach(var v in dics){
+            if (v.Value == null) continue;
             var deformable = v.Value.GetComponent<DeformableSprite>();
             if (deformable == null) continue;
-            //var t = new Thread(new ThreadStart(delegate() { deformable.Apply(gameObject); }));
-            //t.Start();
-            deformable.Apply(gameObject);
+
+            if(isUnique){
+                var texture = GetComponent<SpriteRenderer>().sprite.texture;
+                deformable.Apply(gameObject, texture.GetPixels(),new Vector2( texture.width,texture.height));
+            }
+            else deformable.Apply(gameObject,
+                DictionaryTexturesDeform.textureColors[idTexture],
+                DictionaryTexturesDeform.textureSize  [idTexture]);
         }
-        Destroy(this.gameObject);
+        isDead = true;
     }
     void OnTriggerExit2D(Collider2D c)
     {

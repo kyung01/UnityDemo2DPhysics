@@ -11,8 +11,10 @@ using ExtensionsTexture2D;
 class DeformableSprite : EasyGameObject
 {
     const int LAYER_DESTROY = 8;
-    bool    isNewColors = false,
+    bool    isNewTexture = false,
+            isNewModel = false,
             isTextureEmpty= false;
+    KTimer timerModel= new KTimer(.1f);
 
     float pixelsToWorld;
     Vector2 textureSize;
@@ -28,6 +30,7 @@ class DeformableSprite : EasyGameObject
         mySpriteRnederer = GetComponent<SpriteRenderer>();
         mySpriteRnederer.kNewSprite();
         mySprite = mySpriteRnederer.sprite;
+        mySpriteTexture = mySprite.texture;
 
         pixelsToWorld = helperGetSpriteScale(mySpriteRnederer.sprite);
         colors = mySpriteRnederer.sprite.texture.GetPixels();
@@ -64,25 +67,29 @@ class DeformableSprite : EasyGameObject
         texture.Apply();
         return texture;
     }
-    public void applyFilter01(Texture2D sample, Vector2 from, Vector2 indexFrom, Vector2 indexTo, Vector2 dis)
+    public void applyFilter01( Color[] sampelColors,  Vector2 sampleSize,Vector2 from, Vector2 indexFrom, Vector2 indexTo, Vector2 dis)
     {
-        Vector2 sampleSize = new Vector2(sample.width, sample.height);
-        Color[] sampelColors = sample.GetPixels();
         int countSample = sampelColors.Length,
             countColor = colors.Length;
         //Debug.Log(from + " " + indexFrom + " " + indexTo + " " + dis);
-        for (int j = (int)indexFrom.y; j <= indexTo.y; j++) for (int i = (int)indexFrom.x; i <= indexTo.x; i++)
-            {
-                Vector2 atTexture = new Vector2(i, j).divide(dis).mult(sampleSize);
-                int indexX = (int)Mathf.Min(from.x + i, textureSize.x - 1);
-                int indexY = (int)Mathf.Min(from.y + j, textureSize.y - 1);
-                int index = (int)(indexX + indexY * textureSize.x);
-                if (index < 0 || index >= countColor) continue;
+        Thread myThread = new Thread(delegate() {
+            for (int j = (int)indexFrom.y; j <= indexTo.y; j++) for (int i = (int)indexFrom.x; i <= indexTo.x; i++)
+                {
+                    Vector2 atTexture = new Vector2(i, j).divide(dis).mult(sampleSize);
+                    int indexX = (int)Mathf.Min(from.x + i, textureSize.x - 1);
+                    int indexY = (int)Mathf.Min(from.y + j, textureSize.y - 1);
+                    int index = (int)(indexX + indexY * textureSize.x);
+                    if (index < 0 || index >= countColor) continue;
 
-                int indexSample = (int)((int)atTexture.x + (int)atTexture.y * (int)sampleSize.x) % countSample;
-                if (index < 0 || indexSample < 0 || colors[index].a == 0) continue;
-                helperSetColorAt(index, ref sampelColors[indexSample]);
-            }
+                    int indexSample = (int)((int)atTexture.x + (int)atTexture.y * (int)sampleSize.x) % countSample;
+                    if (index < 0 || indexSample < 0 || colors[index].a == 0) continue;
+                    helperSetColorAt(index, ref sampelColors[indexSample]);
+                } 
+            isNewTexture = true;
+            isNewModel = true;
+        });
+        myThread.Start();
+        
     }
     public void applyFilter02(Texture2D sample, Vector2 from, Vector2 indexFrom, Vector2 indexTo)
     {
@@ -106,7 +113,7 @@ class DeformableSprite : EasyGameObject
                 colors[ (int) Mathf.Max(0,(textureSize.x * j - 1))] = Color.green;
             }
     }
-    public void helperApplyTextureAt(Texture2D texture, Vector2 from, Vector2 to, bool isRatio= true)
+    public void helperApplyTextureAt(Color[] sample, Vector2 sampleSize, Vector2 from, Vector2 to, bool isRatio= true)
     {
         if (isRatio)
         {
@@ -120,9 +127,9 @@ class DeformableSprite : EasyGameObject
             jInit   = (int)Mathf.Abs(Mathf.Min(0, from.y)),
             jMax    = (int)(Mathf.Min(textureSize.y, from.y + dis.y) - from.y);
 
-        applyFilter01(texture, from, new Vector2(iInit, jInit), new Vector2(iMax, jMax), dis);
+        applyFilter01(sample, sampleSize, from, new Vector2(iInit, jInit), new Vector2(iMax, jMax), dis);
     }
-    public void Apply(GameObject o)
+    public void Apply(GameObject o, Color[] sample, Vector2 sampleSize)
     {
         var s = o.GetComponent<SpriteRenderer>().sprite;
         var world2texture = new Vector3(s.texture.width / ScaleWorld.x, s.texture.height / ScaleWorld.y, 1);
@@ -130,14 +137,17 @@ class DeformableSprite : EasyGameObject
         Vector3 size = gameObject.getSpriteSize(),
             from = (o.getSpriteBottomLeft() - gameObject.getSpriteBottomLeft()),
             to = from + o.getSpriteSize();
-        
-        helperApplyTextureAt(s.texture,  from.divide(size).XY(), to.divide(size).XY());
-        isNewColors = true;
+        helperApplyTextureAt(sample,sampleSize, from.divide(size).XY(), to.divide(size).XY());
     }
-    public void UpdateMesh()
+    void UpdateTexture()
     {
         mySpriteTexture.SetPixels(0, 0, (int)textureSize.x, (int)textureSize.y, colors);
         mySpriteRnederer.sprite.texture.Apply();
+        
+    }
+    public void UpdateMesh()
+    {
+        
         var c = GetComponent<PolygonCollider2D>();
         if (c != null) Destroy(c);
         gameObject.AddComponent<PolygonCollider2D>();
@@ -145,20 +155,21 @@ class DeformableSprite : EasyGameObject
     void Update()
     {
         var o = GetComponent<PolygonCollider2D>();
-        //Debug.Log("BEFORE" + o.points.Count() + " " + o.pathCount + " ");
-        if (isNewColors) {
-            isNewColors = false;
-            //colors[0] = new Color(1, 0, 0, 1);
-            mySpriteTexture = mySprite.texture;
-            //var t = new Thread(delegate() { });
-                //var t = new Thread(UpdateMesh);
-            //t.Start();
-            
-            Debug.Log("BEFORE " +o.points.Count() + " " + o.pathCount + " ");
-            UpdateMesh();
-            Debug.Log("AFTER " + o.points.Count() + " " + o.pathCount + " ");
-            Debug.Log("CountClor " + gameObject.name + " " + countColor + " " + isTextureEmpty );
-        }
+        
         if(isTextureEmpty) GameObject.Destroy(gameObject);
+    }
+    void FixedUpdate()
+    {
+        if (isNewTexture)
+        {
+            isNewTexture = false;
+            UpdateTexture();
+        }
+        if (isNewModel && timerModel.tick(Time.fixedDeltaTime))
+        {
+            isNewModel = false;
+            timerModel.rewind();
+            UpdateMesh();
+        }
     }
 }
