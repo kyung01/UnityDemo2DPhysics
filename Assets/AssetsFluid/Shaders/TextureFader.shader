@@ -21,15 +21,6 @@
 		
 		
 
-	} 
-	/**
-	SubShader{
-		Pass {
-			ZTest Always Cull Off ZWrite Off
-			ColorMask RGBA
-			Color (1,0,0,1)
-		}
 	}
-	**/
 	FallBack "Diffuse"
 }
