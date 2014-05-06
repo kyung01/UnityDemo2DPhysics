@@ -5,6 +5,7 @@ using Vector3ExtensionMethods;
 
 public class PlayerController : MonoBehaviour
 {
+	public Camera cam;
     const float SPEED = 10.0f;
     const float SPEED_MAX = 20.0f;
     public List<MissileLauncherBasic> launcherMouseLeft;
@@ -50,8 +51,9 @@ public class PlayerController : MonoBehaviour
     }
     void InputMouse()
     {
-        var mouseAt =   Camera.main.ScreenToWorldPoint(Input.mousePosition).mult(1,1,0);
+		var mouseAt = Camera.main.ScreenToWorldPoint(Input.mousePosition).mult(1, 1, 0);
         var from =      mouseAt- transform.position.mult(1, 1, 0);
+		//transform.position = mouseAt;
         transform.rotation =Quaternion.Euler( new Vector3(0,0, -90 + Mathf.Atan2(from.y, from.x) * 180/3.14f));
     }
 	// Update is called once per frame
