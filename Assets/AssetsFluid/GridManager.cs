@@ -86,7 +86,13 @@ public class GridManager : MonoBehaviour {
 	}
 	public void register(KParticle p)
 	{
-		if(!helperRegister(p)) GameObject.Destroy(p.gameObject);
+		if (!helperRegister(p))
+		{
+			//GameObject.Destroy(p.gameObject);
+			p.rigidbody2D.velocity = Vector3.zero;
+			p.transform.position = new Vector3(-10.5f, 1.0f, 11.02f);
+			gridArray[0, gridArray.GetLength(1) -1].register(p);
+		}
 	}
 	public void updateGrid(KParticle p)
 	{

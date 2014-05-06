@@ -5,6 +5,7 @@ public class Emitter : MonoBehaviour {
 	public GameObject PREFAB;
 	public float tickInterval;
 	float timeElapsed;
+	int count =100;
 	// Use this for initialization
 	void Start () {
 	
@@ -17,6 +18,7 @@ public class Emitter : MonoBehaviour {
 		{
 			timeElapsed = 0;
 			Instantiate(PREFAB, transform.position, Quaternion.identity);
+			if (count-- < 0) enabled = false;
 		}
 	
 	}
